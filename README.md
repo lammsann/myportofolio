@@ -1,7 +1,7 @@
-Nama  : Ghulam Muhammad Ihsan
+Nama : Ghulam Muhammad Ihsan
 
-NPM   : 2506656766
+NPM : 2506656766
 
 Kelas : PBP B
 
-Diubah
+Build
