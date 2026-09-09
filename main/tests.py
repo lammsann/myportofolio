@@ -5,7 +5,6 @@ from django.utils import timezone
 
 from main.models import Experience
 
-
 class MainTest(TestCase):
     def setUp(self):
         self.experience = Experience.objects.create(
