@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render
 
-from main.models import Experience, Mahasiswa
+from main.models import Experience
 
 
 def show_main(request):
@@ -12,7 +12,6 @@ def show_main(request):
         "bio": (
             "I'm a Computer Science student at Universitas Indonesia and I'm really interested in Blockchain and Cybersecurity. I have some basic knowledge in networking and cloud computing. I also have practical experience as an IT Technician Intern, where I developed hands-on skills in network troubleshooting, hardware maintenance, and system support."
         ),
-        "mahasiswa_list": Mahasiswa.objects.all(),
     }
     return render(request, "index.html", context)
 
