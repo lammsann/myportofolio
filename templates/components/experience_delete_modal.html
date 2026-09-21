@@ -1,0 +1,21 @@
+<button type="button" class="button button-danger" popovertarget="deleteModal-{{ experience.id }}">
+    Hapus
+</button>
+
+<div id="deleteModal-{{ experience.id }}" popover class="project-delete-modal">
+    <div class="project-delete-modal__backdrop" popovertarget="deleteModal-{{ experience.id }}" popovertargetaction="hide"></div>
+    <div class="project-delete-modal__content">
+        <h2>Hapus Pengalaman</h2>
+        <p>Apakah Anda yakin ingin menghapus "{{ experience.title }}"?</p>
+        
+        <div class="project-delete-modal__actions">
+            <button type="button" class="button button-secondary" popovertarget="deleteModal-{{ experience.id }}" popovertargetaction="hide">
+                Batal
+            </button>
+            <form action="{% url 'main:delete_experience' experience.id %}" method="POST" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger">Hapus</button>
+            </form>
+        </div>
+    </div>
+</div>

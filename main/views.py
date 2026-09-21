@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core import serializers
 from django.http import HttpResponse
 from main.models import Experience, Education
-from main.forms import EducationForm
+from main.forms import EducationForm, ExperienceForm
 
 
 def show_main(request):
@@ -18,13 +18,66 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
+def get_experience_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experiences = Experience.objects.all()
+    if title_query:
+        experiences = experiences.filter(title__icontains=title_query)
+
+    experiences_json = serializers.serialize("json", experiences)
+
+    return HttpResponse(experiences_json, content_type="application/json")
 
 def show_experience(request):
+    json_response = get_experience_json(request)
+    experiences = serializers.deserialize("json", json_response.content.decode("utf-8"))
+    experiences = [exp.object for exp in experiences]
+    
+    title_query = request.GET.get("title", "").strip()
     context = {
         "name": "Ghulam",
-        "experience_list": Experience.objects.all(),
+        "experience_list": experiences,
+        "title_query": title_query,
     }
+
     return render(request, "experience.html", context)
+
+def create_experience(request):
+    form = ExperienceForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Pengalaman baru berhasil ditambahkan!")
+        return redirect("main:show_experience")
+    context = {
+        "name": "Ghulam", 
+        "form": form
+    }
+
+    return render(request, "experience_form.html", context)
+
+def edit_experience(request, id):
+    experience = get_object_or_404(Experience, pk=id)
+    form = ExperienceForm(request.POST or None, instance=experience) # instance ini agar formnya terisi otomatis
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Pengalaman berhasil diperbarui!")
+        return redirect("main:show_experience")
+    context = {
+        "name": "Ghulam", 
+        "form": form, 
+        "is_update": True
+    }
+
+    return render(request, "experience_form.html", context)
+
+def delete_experience(request, id):
+    experience = get_object_or_404(Experience, pk=id)
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request, "Pengalaman berhasil dihapus!")
+        return redirect("main:show_experience")
+    
+    return redirect("main:show_experience")
 
 def get_education_json(request):
     title_query = request.GET.get("title", "").strip()
@@ -34,6 +87,7 @@ def get_education_json(request):
         educations = educations.filter(institution__icontains=title_query)
         
     educations_json = serializers.serialize("json", educations)
+
     return HttpResponse(educations_json, content_type="application/json")
 
 def show_education(request):
@@ -47,6 +101,7 @@ def show_education(request):
         "education_list": educations,
         "title_query": title_query,
     }
+
     return render(request, "education.html", context)
 
 def create_education(request):
@@ -59,6 +114,7 @@ def create_education(request):
         "name": "Ghulam",
         "form": form,
     }
+
     return render(request, "education_form.html", context)
 
 def delete_education(request, education_id):
@@ -67,4 +123,5 @@ def delete_education(request, education_id):
         education.delete()
         messages.success(request, "Riwayat pendidikan berhasil dihapus!")
         return redirect("main:show_education")
+    
     return redirect("main:show_education")

@@ -1,5 +1,5 @@
-from django.forms import ModelForm, TextInput, Textarea
-from main.models import Education
+from django.forms import ModelForm, TextInput, Textarea, Select
+from main.models import Education, Experience
 
 class EducationForm(ModelForm):
     class Meta:
@@ -18,4 +18,21 @@ class EducationForm(ModelForm):
             "institution": TextInput(attrs={"placeholder": "Contoh: Universitas Indonesia"}),
             "description": Textarea(attrs={"placeholder": "Ceritakan pendidikanmu", "rows": 3}),
             "graduation_year": TextInput(attrs={"placeholder": "Contoh: 2028"}),
+        }
+
+class ExperienceForm(ModelForm):
+    class Meta:
+        model = Experience
+        fields = ["title", "description", "category"]
+        
+        labels = {
+            "title": "Posisi / Pekerjaan",
+            "description": "Deskripsi Pekerjaan",
+            "category": "Kategori",
+        }
+        
+        widgets = {
+            "title": TextInput(attrs={"placeholder": "Contoh: Software Engineer Intern"}),
+            "description": Textarea(attrs={"placeholder": "Ceritakan pengalaman kerjamu", "rows": 3}),
+            "category": Select(),
         }
