@@ -12,9 +12,11 @@
                 
                 <div class="project-header">
                     <h1>Experience</h1>
+                    {% if user.is_superuser %}
                     <a href="{% url 'main:create_experience' %}" class="button project-add-button">
                         <span aria-hidden="true">+</span> Tambah Experience
                     </a>
+                    {% endif %}
                 </div>
 
                 <form method="get" action="{% url 'main:show_experience' %}" class="project-search">
@@ -41,8 +43,13 @@
                             
                             <div class="project-card-actions">
                                 <div class="project-actions">
-                                    <a href="{% url 'main:edit_experience' experience.id %}" class="button">Edit</a>
-                                    {% include "components/experience_delete_modal.html" %}
+                                    {% if user.is_authenticated %}
+                                        {% include "components/experience_star.html" with experience=experience %}
+                                    {% endif %}
+                                    {% if user.is_superuser %}
+                                        <a href="{% url 'main:edit_experience' experience.id %}" class="button">Edit</a>
+                                        {% include "components/experience_delete_modal.html" %}
+                                    {% endif %}
                                 </div>
                             </div>
                             

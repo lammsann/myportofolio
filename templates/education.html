@@ -9,9 +9,11 @@
                 <p class="section-kicker">Riwayat Pendidikan</p>
                 <div class="project-header">
                     <h1>Education</h1>
+                    {% if user.is_superuser %}
                     <a href="{% url 'main:create_education' %}" class="button project-add-button">
                         <span aria-hidden="true">+</span> Tambah Education
                     </a>
+                    {% endif %}
                 </div>
 
                 <form method="get" action="{% url 'main:show_education' %}" class="project-search">
@@ -29,7 +31,9 @@
 
                             <div class="project-card-actions">
                                 <div class="project-actions">
-                                    {% include "components/education_delete_modal.html" with edu=edu %}
+                                    {% if user.is_superuser %}
+                                        {% include "components/education_delete_modal.html" with edu=edu %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </article>
