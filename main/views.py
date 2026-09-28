@@ -63,10 +63,19 @@ def show_experience(request):
     experiences = [exp.object for exp in experiences]
     
     title_query = request.GET.get("title", "").strip()
+
+    is_editor = request.user.groups.filter(name='Editor').exists()
+
+    if request.user.is_authenticated:
+        is_editor = request.user.groups.filter(name='Editor').exists()
+    else:
+        is_editor = False
+
     context = {
         "name": "Ghulam",
         "experience_list": experiences,
         "title_query": title_query,
+        "is_editor": is_editor,
     }
     return render(request, "experience.html", context)
 
@@ -83,7 +92,9 @@ def create_experience(request):
 
 @login_required(login_url="/login/")
 def edit_experience(request, id):
-    if not request.user.is_superuser: raise PermissionDenied
+    is_editor = request.user.groups.filter(name='Editor').exists()
+    if not (request.user.is_superuser or is_editor): 
+        raise PermissionDenied
     experience = get_object_or_404(Experience, pk=id)
     form = ExperienceForm(request.POST or None, instance=experience)
     if request.method == "POST" and form.is_valid():

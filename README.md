@@ -33,3 +33,7 @@ Kelas : PBP B
    Alasan Serialisasi: Data yang diambil dari database Django masih berupa "Objek Python" yang rumit dan tidak bisa dikirim begitu saja lewat internet. Serialisasi adalah proses menerjemahkan "Objek Python" tersebut menjadi format teks standar (seperti JSON) agar bisa dibaca, dipahami, dan ditampilkan oleh sistem bahasa pemrograman lain di sisi client (seperti JavaScript di browser).
 
    AI Disclosure: [share.gemini.google/hBaUHc1Ih0vV](https://share.gemini.google/hBaUHc1Ih0vV)
+
+## Tugas 4
+
+AI Disclosure: [share.gemini.google/US0DiYmqczgg](https://share.gemini.google/US0DiYmqczgg)
