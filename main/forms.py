@@ -1,5 +1,7 @@
 from django.forms import ModelForm, TextInput, Textarea, Select
 from main.models import Education, Experience
+from django.core.exceptions import ValidationError
+from django.utils.html import strip_tags 
 
 class EducationForm(ModelForm):
     class Meta:
@@ -36,3 +38,11 @@ class ExperienceForm(ModelForm):
             "description": Textarea(attrs={"placeholder": "Ceritakan pengalaman kerjamu", "rows": 3}),
             "category": Select(),
         }
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Posisi/Pekerjaan tidak boleh hanya berisi tag HTML.")
+        return title
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()

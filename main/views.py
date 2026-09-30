@@ -1,8 +1,10 @@
 import datetime
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core import serializers
 from django.http import HttpResponse
+from django.http import JsonResponse
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -51,31 +53,39 @@ def show_main(request):
 
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
-    experiences = Experience.objects.all()
+    experiences = Experience.objects.prefetch_related('starred_by').all()
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
-    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
-    return HttpResponse(experiences_json, content_type="application/json")
+        
+    data = []
+    for exp in experiences:
+        starred_users = exp.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+        
+        data.append({
+            "pk": str(exp.id),
+            "fields": {
+                "title": exp.title,
+                "description": exp.description,
+                "category_display": exp.get_category_display(),
+                "is_ongoing": exp.is_ongoing,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+    return JsonResponse(data, safe=False)
 
 def show_experience(request):
-    json_response = get_experience_json(request)
-    experiences = serializers.deserialize("json", json_response.content.decode("utf-8"))
-    experiences = [exp.object for exp in experiences]
-    
     title_query = request.GET.get("title", "").strip()
-
-    is_editor = request.user.groups.filter(name='Editor').exists()
-
-    if request.user.is_authenticated:
-        is_editor = request.user.groups.filter(name='Editor').exists()
-    else:
-        is_editor = False
-
+    is_editor = request.user.groups.filter(name='Editor').exists() if request.user.is_authenticated else False
+    
     context = {
         "name": "Ghulam",
-        "experience_list": experiences,
         "title_query": title_query,
         "is_editor": is_editor,
+        "form": ExperienceForm(),
     }
     return render(request, "experience.html", context)
 
@@ -165,3 +175,16 @@ def delete_education(request, education_id):
         messages.success(request, "Riwayat pendidikan berhasil dihapus!")
         return redirect("main:show_education")
     return redirect("main:show_education")
+
+
+@require_POST
+def create_experience_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse({"message": "Hanya pemilik yang dapat menambahkan experience."}, status=403)
+    
+    form = ExperienceForm(request.POST)
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse({"message": "Berhasil ditambahkan.", "pk": str(experience.id)}, status=201)
+    
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
